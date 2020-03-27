@@ -21,7 +21,7 @@ public class Server {
 	public Selector selector;
 	List<User> connections = new Vector<User>();
 	Map<Integer, Host> hostMap = new HashMap<Integer, Host>();
-	int hostNumber = 0;
+	int hostNumber = 1;
 	
 	public void startServer() {
 		try {
@@ -30,6 +30,7 @@ public class Server {
 			serverSocketChannel.configureBlocking(false);
 			serverSocketChannel.bind(new InetSocketAddress(6001));
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+			System.out.println("서버 생성 성공");
 		} catch (Exception e) {
 			if(serverSocketChannel.isOpen()) {
 				stopServer();
@@ -53,11 +54,12 @@ public class Server {
 							accept(key);
 						}
 						else if(key.isReadable()) {
-							User User = (User)key.attachment();
-							
+							User user = (User)key.attachment();
+							user.receive(key);
 						}
 						else if(key.isWritable()) {
-							User User = (User)key.attachment();
+							User user = (User)key.attachment();
+							user.send(key);
 						}
 						iterator.remove();
 					}
@@ -95,7 +97,8 @@ public class Server {
 			ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
 			SocketChannel socketChannel = serverSocketChannel.accept();
 			
-			System.out.println("클라이언트 연결 수락");
+			InetSocketAddress ia = (InetSocketAddress) socketChannel.getRemoteAddress();
+			System.out.println(ia.getHostName()+" 클라이언트 연결 수락");
 			
 			User user = new User(socketChannel);
 			connections.add(user);
@@ -132,10 +135,10 @@ public class Server {
 				byteBuffer.flip();
 				Charset charset = Charset.forName("UTF-8");
 				String data = charset.decode(byteBuffer).toString();
-				
+				System.out.println("받은 데이터: "+ data);
 				switch (Integer.parseInt(data.split(":")[0])) {
 				case 1:		//생성된 방 조회
-					String hostList = null;
+					String hostList = "";
 					
 					//생성된 방의 문자열 리스트를 만들어 준다.
 					Set<Integer> hostKeySet = hostMap.keySet();
@@ -146,6 +149,7 @@ public class Server {
 						hostList += Integer.toString(hostKey)+"\t"+host.toString() + "\n";
 					}
 					
+					System.out.println("보낼 데이터: "+ hostList);
 					this.sendData = hostList;
 					selectionKey.interestOps(SelectionKey.OP_WRITE);
 					selector.wakeup();
@@ -153,8 +157,8 @@ public class Server {
 				case 2:		//방 생성 요청
 					try {
 						String ipAddress = data.split(":")[1];
-						int portNumber = Integer.parseInt(data.split(":")[2]);
-						hostMap.put(hostNumber++, new Host(ipAddress, portNumber));
+						hostMap.put(hostNumber++, new Host(ipAddress));
+						System.out.println("방 생성 성공");
 					} catch (Exception e) {
 						// TODO: handle exception
 						System.out.println("방 생성 실패");
@@ -164,6 +168,7 @@ public class Server {
 					try {
 						int removeNum = Integer.parseInt(data.split(":")[1]);
 						hostMap.remove(removeNum);
+						System.out.println("방 삭제 성공");
 					} catch (Exception e) {
 						// TODO: handle exception
 						System.out.println("방 삭제 실패");

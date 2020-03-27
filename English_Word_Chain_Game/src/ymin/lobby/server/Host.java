@@ -9,6 +9,10 @@ public class Host {
 		this.portNumber = portNumber;
 	}
 	
+	Host(String ipAddress){
+		this.ipAddress = ipAddress;
+	}
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
