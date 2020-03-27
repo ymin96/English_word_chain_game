@@ -9,8 +9,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -18,7 +20,9 @@ public class Server {
 	ServerSocketChannel serverSocketChannel;
 	public Selector selector;
 	List<User> connections = new Vector<User>();
-	Map<String, String> 
+	Map<Integer, Host> hostMap = new HashMap<Integer, Host>();
+	int hostNumber = 0;
+	
 	public void startServer() {
 		try {
 			selector = Selector.open();
@@ -112,6 +116,7 @@ public class Server {
 			selectionKey.attach(this);
 		}
 		
+		//연결된 클라이언트에게서 데이터 수신
 		void receive(SelectionKey selectionKey) {
 			try {
 				ByteBuffer byteBuffer = ByteBuffer.allocate(100);
@@ -128,20 +133,72 @@ public class Server {
 				Charset charset = Charset.forName("UTF-8");
 				String data = charset.decode(byteBuffer).toString();
 				
-				switch (Integer.parseInt(data)) {
+				switch (Integer.parseInt(data.split(":")[0])) {
 				case 1:		//생성된 방 조회
+					String hostList = null;
 					
+					//생성된 방의 문자열 리스트를 만들어 준다.
+					Set<Integer> hostKeySet = hostMap.keySet();
+					Iterator<Integer> keyIterator = hostKeySet.iterator();
+					while(keyIterator.hasNext()) {
+						Integer hostKey = keyIterator.next();
+						Host host = hostMap.get(hostKey);
+						hostList += Integer.toString(hostKey)+"\t"+host.toString() + "\n";
+					}
+					
+					this.sendData = hostList;
+					selectionKey.interestOps(SelectionKey.OP_WRITE);
+					selector.wakeup();
 					break;
-				default:
-					throw new IllegalArgumentException("Unexpected value: " + Integer.parseInt(data));
+				case 2:		//방 생성 요청
+					try {
+						String ipAddress = data.split(":")[1];
+						int portNumber = Integer.parseInt(data.split(":")[2]);
+						hostMap.put(hostNumber++, new Host(ipAddress, portNumber));
+					} catch (Exception e) {
+						// TODO: handle exception
+						System.out.println("방 생성 실패");
+					}
+					break;
+				case 3:		//방 삭제 요청
+					try {
+						int removeNum = Integer.parseInt(data.split(":")[1]);
+						hostMap.remove(removeNum);
+					} catch (Exception e) {
+						// TODO: handle exception
+						System.out.println("방 삭제 실패");
+					}
+					break;
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
+				try {
+					connections.remove(this);
+					socketChannel.close();
+				} catch (IOException e2) {
+					// TODO: handle exception
+				}
 			}
 		}
 		
+		//연결된 클라이언트에게 데이터 송신
 		void send(SelectionKey selectionKey) {
-			
+			try {
+				Charset charset = Charset.forName("UTF-8");
+				ByteBuffer byteBuffer = charset.encode(sendData);
+				socketChannel.write(byteBuffer);	//데이터 전송
+				selectionKey.interestOps(SelectionKey.OP_READ);		//작업 유형 변경
+				selector.wakeup();		//변경된 작업 유형을 감지
+			} catch (Exception e) {
+				// TODO: handle exception
+				try {
+					connections.remove(this);
+					socketChannel.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 }
