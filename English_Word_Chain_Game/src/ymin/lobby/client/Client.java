@@ -23,7 +23,6 @@ public class Client {
 				stopClient();
 			return;
 		}
-		print();
 	}
 
 	public void stopClient() {
@@ -69,7 +68,7 @@ public class Client {
 		}
 	}
 
-	void print() {
+	void run() {
 		while (true) {
 			System.out.println("1.리스트 갱신");
 			System.out.println("2.방 생성");
@@ -89,7 +88,6 @@ public class Client {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 				break;
 			case 3:
 				break;
