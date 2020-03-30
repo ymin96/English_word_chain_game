@@ -121,7 +121,7 @@ public class Server {
 		
 		//연결된 클라이언트에게서 데이터 수신
 		void receive(SelectionKey selectionKey) {
-			try {
+ 			try {
 				ByteBuffer byteBuffer = ByteBuffer.allocate(100);
 				
 				//데이터 받기
@@ -136,9 +136,9 @@ public class Server {
 				Charset charset = Charset.forName("UTF-8");
 				String data = charset.decode(byteBuffer).toString();
 				System.out.println("받은 데이터: "+ data);
+				String tempData ="";
 				switch (Integer.parseInt(data.split(":")[0])) {
 				case 1:		//생성된 방 조회
-					String hostList = "";
 					
 					//생성된 방의 문자열 리스트를 만들어 준다.
 					Set<Integer> hostKeySet = hostMap.keySet();
@@ -146,32 +146,50 @@ public class Server {
 					while(keyIterator.hasNext()) {
 						Integer hostKey = keyIterator.next();
 						Host host = hostMap.get(hostKey);
-						hostList += Integer.toString(hostKey)+"\t"+host.toString() + "\n";
+						tempData += Integer.toString(hostKey)+" "+host.getTitle()+ "\n";
 					}
 					
-					System.out.println("보낼 데이터: "+ hostList);
-					this.sendData = hostList;
+					System.out.println("보낼 데이터: "+ tempData);
+					this.sendData = tempData;
 					selectionKey.interestOps(SelectionKey.OP_WRITE);
 					selector.wakeup();
 					break;
 				case 2:		//방 생성 요청
 					try {
 						String ipAddress = data.split(":")[1];
-						hostMap.put(hostNumber++, new Host(ipAddress));
-						System.out.println("방 생성 성공");
+						String title = data.split(":")[2];
+						hostMap.put(hostNumber, new Host(ipAddress, title));
+						System.out.println(hostNumber+"번 게임 서버 생성 성공");
+						hostNumber++;
 					} catch (Exception e) {
 						// TODO: handle exception
-						System.out.println("방 생성 실패");
+						System.out.println("게임 서버 생성 실패");
 					}
 					break;
-				case 3:		//방 삭제 요청
+				case 3:
+					try {
+						int roomNum = Integer.parseInt(data.split(":")[1]);
+						//Map에 전달받은 키값이 있다면 해당 호스트의 ip를 넘겨준다.
+						if(hostMap.containsKey(roomNum)) 
+							tempData += "true:" + hostMap.get(roomNum).getIpAddress();
+						//Map에 전달받은 키값이 없다면 false를 전달하고 오류 메시지를 보내준다.
+						else
+							tempData += "false:찾는 방이 존재하지 않습니다.\n리스트를 갱신해주세요.";
+						this.sendData = tempData;
+						selectionKey.interestOps(SelectionKey.OP_WRITE);
+						selector.wakeup();
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
+					break;
+				case 4:		//방 삭제 요청
 					try {
 						int removeNum = Integer.parseInt(data.split(":")[1]);
 						hostMap.remove(removeNum);
-						System.out.println("방 삭제 성공");
+						System.out.println(removeNum + "번 게임 서버 삭제 성공");
 					} catch (Exception e) {
 						// TODO: handle exception
-						System.out.println("방 삭제 실패");
+						System.out.println("게임 서버 삭제 실패");
 					}
 					break;
 				}
@@ -205,5 +223,7 @@ public class Server {
 				}
 			}
 		}
+		
+		
 	}
 }

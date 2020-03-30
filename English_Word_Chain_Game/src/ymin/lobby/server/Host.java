@@ -2,20 +2,32 @@ package ymin.lobby.server;
 
 public class Host {
 	String ipAddress;
-	int portNumber;
+	String title;
 	
-	Host(String ipAddress, int portNumber){
-		this.ipAddress = ipAddress;
-		this.portNumber = portNumber;
+	public String getIpAddress() {
+		return ipAddress;
 	}
-	
-	Host(String ipAddress){
+
+	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	Host(String ipAddress, String title){
+		this.ipAddress = ipAddress;
+		this.title = title;
 	}
 	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return ipAddress + ":" + Integer.toString(portNumber);
+		return ipAddress + ":" + title;
 	}
 }

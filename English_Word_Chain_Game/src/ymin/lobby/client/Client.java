@@ -34,7 +34,7 @@ public class Client {
 		}
 	}
 
-	void receive() {
+	String receive() {
 		try {
 			ByteBuffer byteBuffer = ByteBuffer.allocate(100);
 
@@ -50,9 +50,10 @@ public class Client {
 			Charset charset = Charset.forName("UTF-8");
 			String data = charset.decode(byteBuffer).toString();
 
-			System.out.println(data);
+			return data;
 		} catch (Exception e) {
 			stopClient();
+			return "error";
 		}
 	}
 
@@ -68,28 +69,47 @@ public class Client {
 		}
 	}
 
-	void run() {
+	public void run() {
 		while (true) {
+			System.out.println("---------------------");
 			System.out.println("1.리스트 갱신");
 			System.out.println("2.방 생성");
 			System.out.println("3.접속 요청");
+			System.out.println("---------------------");
+			System.out.print("번호 입력:");
 			Scanner sc = new Scanner(System.in);
-			int num = sc.nextInt();
-			switch (num) {
+			int check = sc.nextInt();
+			sc.nextLine();
+			String resultReceive;
+			switch (check) {
 			case 1:
-				send(Integer.toString(num));
-				receive();
+				send(Integer.toString(check));
+				resultReceive = receive();
+				System.out.println("<---------------------->");
+				System.out.println(resultReceive);
+				System.out.println("<---------------------->");
 				break;
 			case 2:
 				try {
+					System.out.println("방 제목 입력:");
+					String title = sc.nextLine();
 					InetAddress ia = InetAddress.getLocalHost();
-					send(num + ":" + ia.getHostName());
+					send(check + ":" + ia.getHostName() + ":" + title);
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				break;
 			case 3:
+				try {
+					System.out.println("들어갈 방의 번호 입력:");
+					int roomNum = sc.nextInt();
+					send(check + ":" + roomNum); 
+					resultReceive = receive();
+					System.out.println(resultReceive);
+				}catch (Exception e) {
+					
+				}
 				break;
 			}
 		}

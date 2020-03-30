@@ -20,6 +20,7 @@ public class Main {
 		case 2:
 			Client lobbyClient = new Client();
 			lobbyClient.startClient();
+			lobbyClient.run();
 			break;
 		}
 	}
