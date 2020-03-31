@@ -30,7 +30,7 @@ public class Server {
 			serverSocketChannel.configureBlocking(false);
 			serverSocketChannel.bind(new InetSocketAddress(6001));
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-			System.out.println("서버 생성 성공");
+			System.out.println("로비 서버 생성 성공");
 		} catch (Exception e) {
 			if(serverSocketChannel.isOpen()) {
 				stopServer();
@@ -139,7 +139,6 @@ public class Server {
 				String tempData ="";
 				switch (Integer.parseInt(data.split(":")[0])) {
 				case 1:		//생성된 방 조회
-					
 					//생성된 방의 문자열 리스트를 만들어 준다.
 					Set<Integer> hostKeySet = hostMap.keySet();
 					Iterator<Integer> keyIterator = hostKeySet.iterator();
@@ -166,7 +165,7 @@ public class Server {
 						System.out.println("게임 서버 생성 실패");
 					}
 					break;
-				case 3:
+				case 3:	//방 참가 요청
 					try {
 						int roomNum = Integer.parseInt(data.split(":")[1]);
 						//Map에 전달받은 키값이 있다면 해당 호스트의 ip를 넘겨준다.
