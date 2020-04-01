@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -57,5 +58,15 @@ public class GameServer {
 		}
 	}
 	
-	
+	//클라이언트 연결 수락
+	private void accept(SelectionKey key) {
+		try {
+			ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+			SocketChannel socketChannel = serverSocketChannel.accept();
+			User user = new User(socketChannel, selector);
+			connections.add(user);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 }
