@@ -14,6 +14,8 @@ public class GameServer {
 	ServerSocketChannel serverSocketChannel;
 	Selector selector;
 	List<User> connections = new Vector<User>();
+	public static final int LEADY = 100;
+	public static final int RUNNING = 200;
 	
 	public void startServer() {
 		try {
@@ -37,7 +39,20 @@ public class GameServer {
 						continue;
 					
 					Set<SelectionKey> selectedKeys = selector.selectedKeys();
-					
+					Iterator<SelectionKey> iterator = selectedKeys.iterator();
+					while(iterator.hasNext()) {
+						SelectionKey key = iterator.next();
+						if(key.isAcceptable()) {
+							accept(key);
+						}
+						else if(key.isReadable()) {
+							
+						}
+						else if(key.isWritable()) {
+							
+						}
+						iterator.remove();
+					}
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
