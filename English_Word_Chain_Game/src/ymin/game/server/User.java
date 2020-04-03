@@ -51,9 +51,10 @@ public class User {
 			byteBuffer.flip();
 			Charset charset = Charset.forName("UTF-8");
 			String data = charset.decode(byteBuffer).toString();
-			
+			int num = Integer.parseInt(data.split(":")[0]);
+			String auth = data.split(":")[1];
 			if(mode == GameServer.LEADY) {
-				int num = Integer.parseInt(data.split(":")[0]);
+				
 				
 				
 			}
