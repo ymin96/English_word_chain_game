@@ -55,8 +55,6 @@ public class User {
 			String auth = data.split(":")[1];
 			if(mode == GameServer.LEADY) {
 				
-				
-				
 			}
 			else if(mode == GameServer.RUNNING) {
 				
