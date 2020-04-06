@@ -9,6 +9,10 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Scanner;
 
+import ymin.game.client.GameClient;
+import ymin.game.client.GameMasterClient;
+import ymin.game.server.GameServer;
+
 public class Client {
 	SocketChannel socketChannel;
 
@@ -95,6 +99,20 @@ public class Client {
 					String title = sc.nextLine();
 					InetAddress ia = InetAddress.getLocalHost();
 					send(check + ":" + ia.getHostName() + ":" + title);
+
+					Thread gServerThread = new Thread(() -> {
+						GameServer gameServer = new GameServer();
+						gameServer.startServer();
+					});
+					gServerThread.start();
+					try {
+						Thread.sleep(100);
+						GameMasterClient masterClient = new GameMasterClient();
+						masterClient.startClient("localhost");
+						masterClient.run();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -104,11 +122,19 @@ public class Client {
 				try {
 					System.out.println("들어갈 방의 번호 입력:");
 					int roomNum = sc.nextInt();
-					send(check + ":" + roomNum); 
+					send(check + ":" + roomNum);
 					resultReceive = receive();
-					System.out.println(resultReceive);
-				}catch (Exception e) {
-					
+					String result = resultReceive.split(":")[0];
+					String content = resultReceive.split(":")[1];
+					if (result.equals("true")) {
+						GameClient gameClient = new GameClient();
+						gameClient.startClient(content);
+						gameClient.run();
+					} else if (result.equals("false")) {
+						System.out.println(content);
+					}
+				} catch (Exception e) {
+
 				}
 				break;
 			}

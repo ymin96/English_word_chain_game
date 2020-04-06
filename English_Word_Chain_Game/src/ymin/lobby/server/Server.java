@@ -151,7 +151,7 @@ public class Server {
 					System.out.println("보낼 데이터: "+ tempData);
 					this.sendData = tempData;
 					selectionKey.interestOps(SelectionKey.OP_WRITE);
-					selector.wakeup();
+		 			selector.wakeup();
 					break;
 				case 2:		//방 생성 요청
 					try {
