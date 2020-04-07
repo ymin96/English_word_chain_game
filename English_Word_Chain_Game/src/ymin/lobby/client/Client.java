@@ -105,6 +105,7 @@ public class Client {
 						gameServer.startServer();
 					});
 					gServerThread.start();
+					
 					try {
 						Thread.sleep(100);
 						GameMasterClient masterClient = new GameMasterClient();
@@ -124,8 +125,8 @@ public class Client {
 					int roomNum = sc.nextInt();
 					send(check + ":" + roomNum);
 					resultReceive = receive();
-					String result = resultReceive.split(":")[0];
-					String content = resultReceive.split(":")[1];
+					String result = resultReceive.split(":")[0];	//서버의 상태 true|false
+					String content = resultReceive.split(":")[1];	//호스트의 ip주소
 					if (result.equals("true")) {
 						GameClient gameClient = new GameClient();
 						gameClient.startClient(content);

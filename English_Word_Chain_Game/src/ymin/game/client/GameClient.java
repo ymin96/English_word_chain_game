@@ -14,12 +14,15 @@ import ymin.game.server.GameServer;
 public class GameClient {
 	SocketChannel socketChannel;
 	int state = GameServer.LEADY;
+	boolean exit = true;
 	Scanner sc = new Scanner(System.in);
+	
 	public void startClient(String host) {
 		try {
 			socketChannel = SocketChannel.open();
 			socketChannel.configureBlocking(true);
 			socketChannel.connect(new InetSocketAddress(host, 12000));
+			receive();
 		} catch (Exception e) {
 			// TODO: handle exception
 			if (socketChannel.isOpen())
@@ -48,7 +51,8 @@ public class GameClient {
 
 					// 서버가 정상적으로 Socket의 close()를 호출했을 경우
 					if (readByteCount == -1) {
-						throw new IOException();
+						System.out.println("정상적으로 종료되었습니다.\n");
+						return;
 					}
 
 					byteBuffer.flip();
@@ -65,8 +69,6 @@ public class GameClient {
 
 	}
 
-	
-	
 	void send(String data) {
 		try {
 			Charset charset = Charset.forName("UTF-8");
@@ -81,7 +83,7 @@ public class GameClient {
 
 	public void run() {
 		System.out.println("**게임 서버 입장**");
-		while (true) {
+		while (exit) {
 			if(state == GameServer.LEADY)
 				readyPrint();
 			else if(state == GameServer.RUNNING)
@@ -102,8 +104,8 @@ public class GameClient {
 			break;
 		case 2:
 			send("2:user");
+			exit = false;
 			return;
-		
 		}
 	}
 	

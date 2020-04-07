@@ -147,6 +147,8 @@ public class Server {
 						Host host = hostMap.get(hostKey);
 						tempData += Integer.toString(hostKey)+" "+host.getTitle()+ "\n";
 					}
+					if(hostKeySet.size() == 0)
+						tempData = "현재 생성된 게임이 없습니다.\n";
 					
 					System.out.println("보낼 데이터: "+ tempData);
 					this.sendData = tempData;
