@@ -51,8 +51,9 @@ public class GameClient {
 
 					// 서버가 정상적으로 Socket의 close()를 호출했을 경우
 					if (readByteCount == -1) {
-						System.out.println("정상적으로 종료되었습니다.\n");
-						return;
+						System.out.println("방장이 나가 서버가 닫혔습니다.\n숫자키를 입력하면 로비로 이동합니다.\n");
+						exit = false;
+						break;
 					}
 
 					byteBuffer.flip();
@@ -61,7 +62,8 @@ public class GameClient {
 					
 					System.out.println(data);
 				} catch (Exception e) {
-					e.printStackTrace();
+					stopClient();
+					break;
 				}
 			}
 		});
@@ -104,6 +106,7 @@ public class GameClient {
 			break;
 		case 2:
 			send("2:user");
+			stopClient();
 			exit = false;
 			return;
 		}

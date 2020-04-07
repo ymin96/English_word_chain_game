@@ -62,10 +62,6 @@ public class GameServer {
 						iterator.remove();
 					}
 					
-					if(closeSignal == true) {	//방장이 나갈 시 서버 닫기
-						stopServer();
-						return;
-					}
 				} catch (Exception e) {
 					// TODO: handle exception
 					stopServer();
@@ -180,7 +176,6 @@ public class GameServer {
 						if(auth.equals("user")) {	//일반 유저가 나갈 때
 							InetSocketAddress ia = (InetSocketAddress) this.socketChannel.getRemoteAddress();
 							String id = ia.getHostName();
-							this.socketChannel.close();	//해당 유저의 소켓 연결 끊기
 							connections.remove(this);	//유저 리스트에서 해당 유저 삭제
 							for(User user: connections) {	//다른 유저들에게 탈퇴 알림
 								user.sendData = id+"님이 방을 나갔습니다.\n";
@@ -190,13 +185,7 @@ public class GameServer {
 							}
 						}
 						else if(auth.equals("master")) {	//방장이 나갈 때
-							for(User user : connections) {	//모든 유저들에게 방장이 나가서 서버가 종료됐다고 알림
-								user.sendData = "방장이 방을 나가 서버가 닫혔습니다.\n";
-								SelectionKey userKey = user.socketChannel.keyFor(selector);
-								userKey.interestOps(SelectionKey.OP_WRITE);
-								selector.wakeup();
-							}
-							closeSignal = true;
+							stopServer();
 						}
 						break;
 					}

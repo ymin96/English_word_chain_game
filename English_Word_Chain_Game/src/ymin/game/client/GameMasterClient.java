@@ -17,7 +17,9 @@ public class GameMasterClient extends GameClient {
 			break;
 		case 2:
 			send("2:master");
-			return;
+			stopClient();
+			exit = false;
+			break;
 		case 3:
 			send("3:master");
 			break;
